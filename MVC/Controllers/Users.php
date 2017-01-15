@@ -21,15 +21,13 @@ class Users
           Dispatcher::getInstance()->display('users/login');
         }
         else {
-          //temporary connect  to database
-          $dbForConnect = include 'config/database.php';
+          $dbForConnect
+            = Config::getInstance()->get('database');
           $link = mysqli_connect($dbForConnect['host'], $dbForConnect['username'],
-            $dbForConnect['password'],$dbForConnect['database'])
-            or die("Could not connect: " . mysqli_error($link));
-
-          if (mysqli_connect_errno()) {
-            printf("Підключення до сервера MySQL неможливе. Код помилки: %s\n", mysqli_connect_error());
-            exit;
+            $dbForConnect['password'], $dbForConnect['database']);
+           if ( $link == FALSE) {
+            echo "Підключення до сервера MySQL неможливе.<br> Спробуйте пізніше";
+            Dispatcher::getInstance()->display('home/index');
           }
           $login = self::SQLSecurity($link,$_POST['email']);
           $password =  self::SQLSecurity($link,$_POST['password']);
@@ -43,16 +41,21 @@ class Users
             session_start();
             $_SESSION['id'] = $row['id'];
             $row['session'] = $_SESSION['id'];
-            echo "Ви успішно зараєстровані!!!".'<br>';
+            echo "Вітаємо ". $row['name'].'<br>';
+            Dispatcher::getInstance()->display('home/index');
             return var_dump($row);
           }
           else {
-            echo "Невірний логін/пароль";
+              $message = "Невірний логін/пароль.<br> Повторіть спробу\n";
+              if ($link == FALSE){$message = '';}
+              echo $message;
             mysqli_free_result($result);
             mysqli_close($link);
+            Dispatcher::getInstance()->display('users/login');
           }
         }
-      }
+    }
+
   /**
    * Security for SQL injection
    * @var $link $data
@@ -78,7 +81,8 @@ class Users
      */
     public function registerAction()
     {
-        Dispatcher::getInstance()->display('users/register');
+      /*register new user */
+      Dispatcher::getInstance()->display('users/register');
     }
 
     public function testAction()
