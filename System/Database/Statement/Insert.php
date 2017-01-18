@@ -4,45 +4,65 @@ namespace System\Database\Statement;
 
 use System\Database\Statement;
 
+/**
+ * Class Insert
+ * @package System\Database\Statement
+ */
 class Insert extends Statement
 {
 
+    /**
+     * @var array
+     */
+    protected $columns;
+
+    /**
+     * @var array
+     */
     protected $values;
 
     /**
-     * @param mixed $values
-     * @return  array $result
-     *
-     *
+     * @param $columns
+     * @return $this
      */
-    public function setValues($values=[])
+    public function columns(array $columns)
     {
-      $key_first = '' ;
-      $value_first = '';
-      if (true === empty($values)) {
-        exit(0);
-      } else {
-        foreach ($values as $key=>$value) {
-          $key_first = $key_first.$key.',';
-          $value_first = $value_first.'\''.$value.'\',';
-        }
-        $key = substr($key_first,0,-1);
-        $value = substr($value_first,0,-1);
-      }
-      $result = [$key,$value];
-        return $result;
+        $this->columns = $columns;
+        return $this;
     }
-  /**
-   * @param mixed $values
-   * @return  object|null $result
-   *
-   *
-   */
-    public function execute($link,$table, $values, $criteria,$order,$limit,$offset)
+
+    /**
+     * @param array $values
+     * @return $this
+     */
+    public function values(array $values)
     {
-      $query ='INSERT INTO '.'`'.$table->table.'` '.'('.$values[0].')'.' VALUES '.'('.$values[1].');';
-      $result = mysqli_query($link,$query);
-      return $result;
+        if (array_values($values) === $values) {
+            $this->values = $values;
+        } else {
+            $this->columns = array_keys($values);
+            $this->values = array_values($values);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return int|bool Last inserted ID
+     */
+    public function execute()
+    {
+        $sql = 'INSERT INTO ' . $this->table;
+
+        if (null !== $this->columns) {
+            $sql .= ' (' . $this->encodeColumns($this->columns) . ') ';
+        }
+
+        $sql .= ' VALUES ' . '(' . $this->encodeValues($this->values) . ')';
+
+        $result = $this->connection->getLink()->query($sql);
+
+        return (false === $result) ? false : $this->connection->getLink()->insert_id;
     }
 
 }

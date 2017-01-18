@@ -43,9 +43,7 @@ abstract class Statement
     public function from($table)
     {
         $this->table = $table;
-
         return $this;
-
     }
 
     /**
@@ -54,11 +52,7 @@ abstract class Statement
      */
     public function limit($limit)
     {
-        if (true === empty($limit)) {
-        $this->limit = '';
-        } else {
-        $this->limit = ' LIMIT '.$limit;
-        }
+        $this->limit = $limit;
         return $this;
     }
 
@@ -68,12 +62,30 @@ abstract class Statement
      */
     public function offset($offset)
     {
-      if (true === empty($offset)) {
-        $this->offset = '';
-      } else {
-        $this->offset = ' OFFSET '.$offset;
-      }
-      return $this;
+        $this->offset = $offset;
+        return $this;
+    }
+
+    /**
+     * @param array $columns
+     * @return string
+     */
+    protected function encodeColumns(array $columns)
+    {
+        return '`' . implode('`, `', $columns) . '`';
+    }
+
+    /**
+     * @param array $values
+     * @return string
+     */
+    protected function encodeValues(array $values)
+    {
+        $values = array_map(function($value) {
+            return $this->connection->getLink()->real_escape_string($value);
+        }, $values);
+
+        return '\'' . implode('\', \'', $values) . '\'';
     }
 
     /**
@@ -81,6 +93,5 @@ abstract class Statement
      *
      * @return mixed
      */
-    abstract public function execute($link,$columns, $table, $criteria,$order,$limit,$offset);
-
+    abstract public function execute();
 }
