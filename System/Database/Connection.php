@@ -4,6 +4,7 @@ namespace System\Database;
 
 use System\Config;
 use System\Database\Statement\Select;
+use System\Database\Statement\Insert;
 use System\Pattern\Singleton;
 
 /**
@@ -65,7 +66,7 @@ class Connection
 
     public function insert()
     {
-
+      return new Insert();
     }
 
     public function delete()

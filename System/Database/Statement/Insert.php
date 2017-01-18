@@ -11,19 +11,38 @@ class Insert extends Statement
 
     /**
      * @param mixed $values
-     *
+     * @return  array $result
      *
      *
      */
-    public function setValues($values)
+    public function setValues($values=[])
     {
-        $this->values = $values;
-        return $this;
+      $key_first = '' ;
+      $value_first = '';
+      if (true === empty($values)) {
+        exit(0);
+      } else {
+        foreach ($values as $key=>$value) {
+          $key_first = $key_first.$key.',';
+          $value_first = $value_first.'\''.$value.'\',';
+        }
+        $key = substr($key_first,0,-1);
+        $value = substr($value_first,0,-1);
+      }
+      $result = [$key,$value];
+        return $result;
     }
-
-    public function execute()
+  /**
+   * @param mixed $values
+   * @return  object|null $result
+   *
+   *
+   */
+    public function execute($link,$table, $values, $criteria,$order,$limit,$offset)
     {
-        $this->values;
+      $query ='INSERT INTO '.'`'.$table->table.'` '.'('.$values[0].')'.' VALUES '.'('.$values[1].');';
+      $result = mysqli_query($link,$query);
+      return $result;
     }
 
 }
