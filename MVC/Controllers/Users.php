@@ -5,6 +5,8 @@ namespace MVC\Controllers;
 use System\Config;
 use System\Controller;
 use System\Database\Connection;
+use MVC\Models\User;
+use System\Auth\Session;
 
 /**
  * Class Users
@@ -24,28 +26,28 @@ class Users extends Controller
             if ($connection->getLink() === false) {
                 $this->getView()->assign('error', 'Maintenance mode');
             } else {
-                $login = $connection->secureString($_POST['email']);
-                $password =  $connection->secureString($_POST['password']);
-                $options = [
-                    'salt' => md5($password),
-                    //write your own code to generate a suitable salt
-                    'cost' => 12
-                    // the default cost is 10
-                ];
+              $querysecure = User::getInstance();
+              $login = $querysecure->secureString($_POST['email']);
+              $password = $querysecure->secureString($_POST['password']);
+              $hash = $querysecure->hashpassword($password);
+              $result = $connection->select()
+                ->from('users')
+                -> where('email', '=', $login)
+                ->_and()
+                -> where('password', '=', $hash)
+                ->execute();
 
-                $hash = password_hash($password, PASSWORD_DEFAULT, $options);
-
-                $query = 'SELECT * FROM users WHERE email=\'' . $login . '\' AND password=\'' . $hash . '\';';
-                $result = $connection->getLink()->query($query);
-
-                if ($result->num_rows === 1) {
-                    $this->forward('home/index');
+                if (false === empty($result)) {
+                  $session = Session::getInstance();
+                  $session->setIdentity($result[0]);
+                //  TODO ?
+                  $this->forward('home/index');
                 } else {
                     $this->getView()->assign('error', 'Invalid email or/and password');
                     mysqli_free_result($result);
-                }
-
-                $connection->getLink()->close();
+                  }
+                  // $session->clearIdentity();
+                  $connection->getLink()->close();
             }
         }
 
@@ -111,16 +113,20 @@ class Users extends Controller
     }
 
     public function testAction()
-    {
+    { //SELECT * FROM users WHERE email=\'' . $login . '\' AND password=\'' . $hash . '\';'
         $statement = Connection::getInstance()
             ->select()
-            ->count()
-            ->from('users');
+            ->from('users')
+            -> where('email', '=', 'lmessi@yahoo.com')
+            ->_and()
+            -> where('password', '=', 'lmessi@yahoo.com')
+        ;
 
 
         var_dump($statement->execute());
 
 //        $this->getView()->view('test');
+
     }
 
 }

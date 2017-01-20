@@ -172,7 +172,7 @@ class Select extends Statement
      */
     public function _and()
     {
-        $this->whereCondition = 'AND';
+        $this->whereCondition = ' AND';
         return $this;
     }
 

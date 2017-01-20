@@ -43,23 +43,6 @@ class Connection
     {
         return $this->link;
     }
-
-    /**
-     * Security for SQL injection
-     * @param string $data
-     * @return string
-     */
-    public function secureString($data)
-    {
-        $data = $this->link->escape_string($data);
-        $data = strip_tags($data);
-        $data = htmlspecialchars($data);
-        $data = stripslashes($data);
-        $data = addslashes($data);
-
-        return $data;
-    }
-
     /**
      * @return Select
      */

@@ -12,9 +12,12 @@
 <body>
 <div class="wrapper">
     <?php $this->layout('menu/guest'); ?>
-
-    <?= $this->content; ?>
-
+    <?php //if ($_SESSION = null): ?>
+    <?php echo $this->content; ?>
+    <?php //else :?>
+       <!--<div style="background-color: #014c8c;height:200px;width:200px;"><div> -->
+    <?php //var_dump($_SESSION);?>
+    <?php //endif;?>
     <?php $this->layout('footer'); ?>
 </div>
 </body>

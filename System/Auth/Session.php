@@ -18,7 +18,8 @@ class Session
      */
     public function __construct()
     {
-        session_start();
+      session_start();
+
     }
 
     /**
@@ -26,18 +27,28 @@ class Session
      */
     public function hasIdentity()
     {
+       $_SESSION['identity'] = (empty($this->getIdentity('id'))) ? false:true;
+       return $_SESSION['identity'];
+    }
+    /**
+    * @var array $identity
+     * @return  array $_SESSION
+     */
+    public function setIdentity($identity=[])
+    {
+        foreach ($identity as $key=>$value) {
+        $_SESSION[$key] = $value;
+        }
     }
 
-    public function setIdentity($identity)
+    public function getIdentity($identity)
     {
-        $_SESSION[''] = $identity;
-    }
-
-    public function getIdentity()
-    {
+      return $_SESSION[$identity];
     }
 
     public function clearIdentity()
     {
+      session_unset();
+      session_destroy();
     }
 }
